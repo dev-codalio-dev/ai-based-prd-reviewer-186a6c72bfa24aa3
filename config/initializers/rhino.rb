@@ -21,4 +21,8 @@ Rhino.setup do |config|
 
   # The list of resources exposed in the API
   config.resources += [ "User", "Account" ]
+  config.resources += [ "Folder" ]
+  config.resources += [ "Label" ]
+  config.resources += [ "Email" ]
+  config.resources += [ "EmailLabel" ]
 end

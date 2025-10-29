@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_12_190657) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_29_182529) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,6 +73,39 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_12_190657) do
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
+  create_table "email_labels", force: :cascade do |t|
+    t.bigint "email_id", null: false
+    t.bigint "label_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_id", "label_id"], name: "index_email_labels_on_email_id_and_label_id", unique: true
+    t.index ["email_id"], name: "index_email_labels_on_email_id"
+    t.index ["label_id"], name: "index_email_labels_on_label_id"
+  end
+
+  create_table "emails", force: :cascade do |t|
+    t.string "subject", null: false
+    t.text "body", null: false
+    t.string "sender", null: false
+    t.string "recipient", null: false
+    t.boolean "read", default: false, null: false
+    t.bigint "user_id", null: false
+    t.bigint "folder_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["folder_id"], name: "index_emails_on_folder_id"
+    t.index ["user_id"], name: "index_emails_on_user_id"
+  end
+
+  create_table "folders", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name", "user_id"], name: "index_folders_on_name_and_user_id", unique: true
+    t.index ["user_id"], name: "index_folders_on_user_id"
+  end
+
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string "slug", null: false
     t.integer "sluggable_id", null: false
@@ -83,6 +116,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_12_190657) do
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id"
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
+  end
+
+  create_table "labels", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name", "user_id"], name: "index_labels_on_name_and_user_id", unique: true
+    t.index ["user_id"], name: "index_labels_on_user_id"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -260,6 +302,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_12_190657) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "email_labels", "emails"
+  add_foreign_key "email_labels", "labels"
+  add_foreign_key "emails", "folders"
+  add_foreign_key "emails", "users"
+  add_foreign_key "folders", "users"
+  add_foreign_key "labels", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
